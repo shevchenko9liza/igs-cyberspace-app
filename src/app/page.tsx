@@ -10,6 +10,7 @@ import { QUIZ_QUESTIONS } from '@/constants/quizData';
 import { Send, Gamepad2, MessageCircle, Shield, ShieldAlert, Wrench, Zap, Home, GraduationCap } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const PhaserGame = dynamic(() => import('@/components/PhaserGame'), { ssr: false });
 
@@ -416,8 +417,8 @@ export default function GamePage() {
                           m.content
                         ) : (
                           m.content ? (
-                            <div className="prose prose-sm prose-invert max-w-none [&_p]:m-0 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0 [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm [&_h1]:font-bold [&_h2]:font-bold [&_h3]:font-bold [&_h1]:my-1 [&_h2]:my-1 [&_h3]:my-1 [&_strong]:text-purple-300 [&_table]:text-xs [&_th]:p-1 [&_td]:p-1">
-                              <ReactMarkdown>{m.content}</ReactMarkdown>
+                            <div className="prose prose-sm prose-invert max-w-none [&_p]:m-0 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0 [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm [&_h1]:font-bold [&_h2]:font-bold [&_h3]:font-bold [&_h1]:my-1 [&_h2]:my-1 [&_h3]:my-1 [&_strong]:text-purple-300 [&_table]:text-xs [&_table]:w-full [&_table]:border-collapse [&_th]:p-1.5 [&_th]:border [&_th]:border-purple-800 [&_th]:bg-purple-900/30 [&_th]:text-left [&_td]:p-1.5 [&_td]:border [&_td]:border-purple-900/50">
+                              <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
                             </div>
                           ) : (
                             m.toolInvocations?.length ? '🔍 Ищу информацию...' : ''
