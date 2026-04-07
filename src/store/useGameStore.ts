@@ -290,7 +290,7 @@ export const useGameStore = create<GameState>()(
 
     takeCredit: (amount) => {
        const { debt, creditLimit } = get();
-       if (debt + amount > creditLimit) return;
+       if (debt + Math.floor(amount * 1.15) > creditLimit) return;
        set((state) => ({ 
           coins: state.coins + amount, 
           debt: state.debt + Math.floor(amount * 1.15),

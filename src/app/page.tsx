@@ -275,7 +275,7 @@ export default function GamePage() {
                         </button>
                       )}
                       {owned && !broken && ('isPassive' in shopItem && shopItem.isPassive) && (
-                        <div style={S.badge('#10b981')}>Запущено (+{shopItem.income}/с)</div>
+                        <div style={S.badge('#10b981')}>Автодоход +{shopItem.income}/сек</div>
                       )}
                       {owned && broken && (
                         <button disabled style={S.btn('#ef4444', true)}>
@@ -287,7 +287,7 @@ export default function GamePage() {
                           <ShieldAlert size={12} /> Страховка {shopItem.insuranceCost} 🪙
                         </button>
                       )}
-                      {owned && insured && <div style={S.badge('#34d399')}><Shield size={12} /> Застраховано</div>}
+                      {owned && insured && <div style={S.badge('#34d399')} title="Одноразовая: сгорит после использования"><Shield size={12} /> Застраховано (1x)</div>}
                     </div>
                   </div>
                 );

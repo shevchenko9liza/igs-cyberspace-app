@@ -7,7 +7,7 @@ export const LOCATIONS = [
 export const SHOP_ITEMS = [
   { id: 'smartphone', locationId: 'room', name: 'Смартфон', cost: 0, insuranceCost: 50, income: 20, riskChance: 0.08, isoCoords: { x: 300, y: 500 } },
   { id: 'pc', locationId: 'room', name: 'Игровой ПК', cost: 1000, insuranceCost: 150, income: 100, riskChance: 0.1, isoCoords: { x: 550, y: 350 } },
-  { id: 'tv', locationId: 'apartment', name: 'Компьютер', cost: 3000, insuranceCost: 300, income: 200, riskChance: 0.08, isoCoords: { x: 480, y: 500 } },
+  { id: 'tv', locationId: 'apartment', name: 'Планшет', cost: 3000, insuranceCost: 300, income: 200, riskChance: 0.08, isoCoords: { x: 480, y: 500 } },
   { id: 'gpu', locationId: 'apartment', name: 'YouTube-канал', cost: 5000, insuranceCost: 500, income: 20, isPassive: true, riskChance: 0.05, isoCoords: { x: 580, y: 520 } },
   { id: 'car', locationId: 'house', name: 'Электросамокат', cost: 8000, insuranceCost: 800, income: 500, riskChance: 0.12, isoCoords: { x: 200, y: 500 } }
 ];
