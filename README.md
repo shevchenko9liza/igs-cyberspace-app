@@ -27,11 +27,15 @@
 
 ---
 
-## Демо-видео
+## Демо
 
-[Смотреть демо (demo.mp4)](demo.mp4)
+<div align="center">
 
-> Нажмите на ссылку выше чтобы скачать и посмотреть демо-ролик, или [откройте продукт по ссылке](https://igs-cyberspace-app-owjc.vercel.app)
+![Демо CyberSpace & Mentor](docs/demo.gif)
+
+*15-секундное превью. [Полное видео (demo.mp4)](demo.mp4) | [Попробовать вживую](https://igs-cyberspace-app-owjc.vercel.app)*
+
+</div>
 
 ---
 
