@@ -10,9 +10,7 @@
 
 ![Next.js](https://img.shields.io/badge/Next.js-15.5-black?style=flat-square&logo=next.js)
 ![Phaser](https://img.shields.io/badge/Phaser-3.85-blue?style=flat-square)
-![Claude](https://img.shields.io/badge/AI-Claude_Sonnet_4.6-D97706?style=flat-square)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript)
-![Zustand](https://img.shields.io/badge/Zustand-5-orange?style=flat-square)
 ![Deploy](https://img.shields.io/badge/Deploy-Vercel-000?style=flat-square&logo=vercel)
 
 </div>
