@@ -1,36 +1,185 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<p align="center">
+  <img src="public/dog.png" width="100" style="border-radius: 50%;" />
+</p>
 
-## Getting Started
+<h1 align="center">CyberSpace & Mentor</h1>
+<p align="center"><b>Интерактивный гайд по страхованию для подростков 11-18 лет</b></p>
 
-First, run the development server:
+<p align="center">
+  <a href="https://igs-cyberspace-app-owjc.vercel.app">Открыть продукт</a>
+</p>
+
+---
+
+## Демо
+
+<!-- Замени demo.mp4 на имя своего видеофайла после добавления в папку public/ или корень репо -->
+<video src="demo.mp4" controls width="100%" autoplay muted loop></video>
+
+> Если видео не отображается, [откройте продукт по ссылке](https://igs-cyberspace-app-owjc.vercel.app)
+
+---
+
+## Проблема
+
+Страхование -- одна из самых непонятных финансовых тем для подростков. Термины вроде "франшиза", "страховая премия", "полис" звучат как другой язык. Страховые компании традиционно общаются через родителей -- или не общаются вообще.
+
+**Результат:** поколение, которое не понимает зачем нужна страховка, не умеет оценивать риски и впервые сталкивается с этими понятиями уже во взрослой жизни -- часто в стрессовой ситуации.
+
+## Решение
+
+CyberSpace & Mentor -- интерактивный сценарий, в котором подросток **на практике** понимает как работает страхование.
+
+Не лекция. Не видео. Не тест. А **опыт**: ты зарабатываешь, покупаешь вещи, сталкиваешься с рисками -- и видишь, как страховка экономит деньги. Или не экономит, если ты её не купил.
+
+### Как это работает
+
+```
+Онбординг --> Пошаговый tutorial --> Квиз --> Свободная игра --> Победа
+    |              |                   |            |               |
+ Знакомство    8 шагов:            5 вопросов   Покупай,      Все локации
+ с игрой       риск, страховка,    с пояснениями страхуй,      разблокированы
+               франшиза, инцидент               зарабатывай    + tutorial + квиз
+```
+
+### Ключевые механики
+
+| Механика | Что учит | Пример в игре |
+|----------|----------|---------------|
+| **Страховка** | Маленькая плата сейчас = защита от большой потери | Страховка смартфона 50 монет, ремонт без неё 500 |
+| **Франшиза** | Твоя часть оплаты при страховом случае | 20% от ущерба платишь сам, 80% покрывает страховая |
+| **Инциденты** | Риски есть везде, но не все страхуемые | Разбитый экран -- страхуемый. Скам в CS:GO -- нет |
+| **Кредит** | Долг растёт, если не платить вовремя | 15% комиссия + 5% штраф каждые 60 секунд |
+| **Пассивный доход** | Деньги могут работать на тебя | YouTube-канал приносит монеты каждую секунду |
+
+---
+
+## Бизнес-логика
+
+### Для кого этот продукт
+
+**Прямой заказчик:** страховая компания (Ингосстрах или любая другая).
+
+**Конечный пользователь:** подростки 11-18 лет.
+
+### Зачем страховой компании подростки
+
+Подростки не купят полис сегодня. Но бренд, который **первым объяснил** им страхование понятным языком, получает преимущество на годы вперёд.
+
+```
+Сегодня                    Через 3-5 лет
+  |                              |
+Подросток                   Молодой взрослый
+играет в CyberSpace         выбирает первую страховку
+  |                              |
+Узнаёт что такое           Помнит бренд,
+франшиза, ОСАГО, риск      который объяснил первым
+  |                              |
+Brand Consideration         Конверсия в клиента
+формируется                 с минимальным CAC
+```
+
+### Модель монетизации (B2B)
+
+| Канал | Описание |
+|-------|----------|
+| **White-label для страховых** | Страховая компания получает брендированную версию продукта для своего сайта/приложения |
+| **Образовательные программы** | Интеграция в школьные курсы финансовой грамотности |
+| **Lead generation** | После прохождения сценария -- предложение реального продукта (страховка гаджета, путешественника) |
+
+### Экономика юнита
+
+- **CAC** (привлечение): минимальный -- продукт вирусный по формату (подростки делятся друг с другом)
+- **LTV**: формируется через Brand Consideration -- клиент приходит через 3-5 лет, но с высоким retention
+- **Стоимость поддержки**: низкая -- AI-ментор отвечает автоматически, контент масштабируется через конфиг
+
+### Метрики пилота
+
+| Метрика | Что измеряет | Как |
+|---------|-------------|-----|
+| **Scenario Completion Rate** | Дошёл ли до конца tutorial | Флаг `tutorialCompleted` в store |
+| **Knowledge Lift** | Вырос ли уровень понимания | Квиз 5 вопросов, score сохраняется |
+| **Insurance Action Rate** | Купил ли страховку, использовал ли | Трекинг в игровой механике |
+| **Useful Session Rate** | Полезна ли сессия в целом | Composite: tutorial + quiz + продолжение |
+| **Brand Consideration Lift** | Изменилось ли отношение к страхованию | Post-survey (следующий этап) |
+
+---
+
+## Стек технологий
+
+| Слой | Технология | Зачем |
+|------|-----------|-------|
+| **Frontend** | Next.js 15, React 19, TypeScript | SSR, быстрый деплой, типобезопасность |
+| **Игровой движок** | Phaser 3 | Изометрическая 2D-комната, анимации, VFX |
+| **Стейт** | Zustand + persist | Реактивное состояние + сохранение в localStorage |
+| **AI-ментор** | Claude Sonnet 4.6 (Anthropic) | Минимум галлюцинаций, встроенная база знаний |
+| **UI** | Tailwind + Shadcn/ui + Radix | Тёмная тема, доступные компоненты |
+| **Деплой** | Vercel | Автодеплой из GitHub, serverless API routes |
+
+### Архитектура
+
+```
+                    [Vercel CDN]
+                         |
+              [Next.js 15 App Router]
+                    /         \
+           [page.tsx]      [/api/chat]
+           React UI        Claude AI
+              |               |
+        [Zustand Store]   [Knowledge Base]
+         persist ->        Факты о страховании
+         localStorage      Guardrails + Fallback
+              |
+        [Phaser 3 Canvas]
+         Изометрическая комната
+         Анимации, VFX
+```
+
+### Защита от галлюцинаций LLM
+
+AI-ментор ограничен тремя уровнями защиты:
+
+1. **Встроенная база знаний** -- факты о страховании РФ (ОСАГО, КАСКО, ОМС, ДМС) прямо в system prompt
+2. **Off-topic фильтр** -- вопросы не про финансы/страхование отклоняются без вызова API
+3. **Fallback-ответы** -- если API недоступен, ментор отвечает из проверенного словаря
+4. **Temperature 0.3** -- минимальная "креативность" = минимум выдумок
+5. **Rate limiting** -- 15 запросов/минуту на IP
+
+---
+
+## Запуск
+
+### Онлайн (рекомендуется)
+
+Откройте [igs-cyberspace-app-owjc.vercel.app](https://igs-cyberspace-app-owjc.vercel.app)
+
+### Локально
+
+```bash
+git clone https://github.com/shevchenko9liza/igs-cyberspace-app.git
+cd igs-cyberspace-app
+npm install --legacy-peer-deps
+```
+
+Создайте `.env.local`:
+```
+ANTHROPIC_API_KEY=your_key_here
+```
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Откройте [localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Команда
 
-## Learn More
+Разработано в рамках хакатона Ингосстрах.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+<p align="center">
+  <sub>CyberSpace & Mentor -- потому что страхование проще, чем кажется.</sub>
+</p>
