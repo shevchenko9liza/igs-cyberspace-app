@@ -16,6 +16,8 @@ export interface ActiveIncident {
   insurable: boolean;
   brokenItemId?: string;
   brokenLocationId?: string;
+  /** Был ли предмет застрахован на момент инцидента */
+  wasInsured?: boolean;
 }
 
 interface GameState {
@@ -221,9 +223,13 @@ export const useGameStore = create<GameState>()(
           incident = INCIDENTS.find(i => i.requiredItemId === itemId);
         }
 
+        const wasInsured = invItem.isInsured;
         set((state) => ({
-          inventory: state.inventory.filter((i) => i.id !== itemId),
-          activeIncident: incident ? { ...incident, brokenItemId: itemId } : null,
+          // Помечаем предмет сломанным, но НЕ удаляем из инвентаря
+          inventory: state.inventory.map((i) =>
+            i.id === itemId ? { ...i, isBroken: true } : i
+          ),
+          activeIncident: incident ? { ...incident, brokenItemId: itemId, wasInsured } : null,
           lastIncidentId: incident ? incident.id : state.lastIncidentId,
           lastIncidentTime: incident ? Date.now() : state.lastIncidentTime
         }));

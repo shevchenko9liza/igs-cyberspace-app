@@ -478,8 +478,7 @@ export default function GamePage() {
             {!activeIncident.insurable && <div style={{ fontSize: 12, color: '#fbbf24', padding: 8, background: 'rgba(251,191,36,0.1)', borderRadius: 8, marginBottom: 10 }}>⚡ Не покрывается страховкой!</div>}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 16 }}>
               {(() => {
-                 const isItemInsured = inventory.find(i => i.id === (activeIncident.brokenItemId ?? activeIncident.brokenLocationId!))?.isInsured;
-                 const canUseInsurance = activeIncident.insurable && isItemInsured;
+                 const canUseInsurance = activeIncident.insurable && activeIncident.wasInsured;
                  const targetId = activeIncident.brokenItemId ?? activeIncident.brokenLocationId!;
 
                  return (
@@ -489,7 +488,7 @@ export default function GamePage() {
                          onClick={() => repairItem(targetId, 'insurance')} 
                          style={{ padding: 12, borderRadius: 10, fontWeight: 800, fontSize: 14, background: 'linear-gradient(135deg,#059669,#047857)', color: 'white', border: 'none', cursor: 'pointer', boxShadow: '0 0 20px rgba(5,150,105,0.4)', marginBottom: 4 }}
                        >
-                         Получить выплату по страховке (-20% франшиза)
+                         Страховая выплата (франшиза 20% = -{activeIncident.damage ? Math.floor(activeIncident.damage * 0.2) : 0} 🪙)
                        </button>
                      )}
                      <button 
