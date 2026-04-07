@@ -198,7 +198,7 @@ export const useGameStore = create<GameState>()(
 
       // Tutorial: на шаге 'trigger_incident' форсируем инцидент
       const isTutorialIncidentStep = tutorialActive && TUTORIAL_STEPS[tutorialStep]?.requiredAction === 'experience_incident';
-      const roll = isTutorialIncidentStep ? 1.0 : Math.random(); // Force incident during tutorial
+      const roll = isTutorialIncidentStep ? 0 : Math.random(); // Force incident during tutorial (0 guarantees roll <= riskChance)
 
       if (roll > shopItem.riskChance) {
         set((state) => ({
@@ -233,6 +233,10 @@ export const useGameStore = create<GameState>()(
           lastIncidentId: incident ? incident.id : state.lastIncidentId,
           lastIncidentTime: incident ? Date.now() : state.lastIncidentTime
         }));
+        // Tutorial: advance from 'experience_incident' to 'resolve_with_insurance'
+        if (isTutorialIncidentStep && incident) {
+          setTimeout(() => get().advanceTutorial(), 500);
+        }
       }
     },
 
