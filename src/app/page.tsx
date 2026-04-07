@@ -491,12 +491,17 @@ export default function GamePage() {
                          Страховая выплата (франшиза 20% = -{activeIncident.damage ? Math.floor(activeIncident.damage * 0.2) : 0} 🪙)
                        </button>
                      )}
-                     <button 
-                       onClick={() => repairItem(targetId, 'pocket')} 
+                     <button
+                       onClick={() => repairItem(targetId, 'pocket')}
                        style={{ padding: 12, borderRadius: 10, fontWeight: 800, fontSize: 14, background: 'linear-gradient(135deg,#dc2626,#b91c1c)', color: 'white', border: 'none', cursor: 'pointer', boxShadow: '0 0 20px rgba(220,38,38,0.4)' }}
                      >
-                       Оплатить ремонт на 100% (-{activeIncident.damage} 🪙)
+                       Оплатить из кармана (-{activeIncident.damage} 🪙)
                      </button>
+                     {coins < activeIncident.damage && (
+                       <div style={{ fontSize: 11, color: '#fbbf24', textAlign: 'center', padding: '4px 0' }}>
+                         Не хватает монет — разница уйдёт в долг под 5% штрафа
+                       </div>
+                     )}
                      <button 
                        onClick={() => {
                          setTab('mentor');
