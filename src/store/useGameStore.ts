@@ -69,6 +69,11 @@ interface GameState {
   openQuiz: () => void;
   closeQuiz: () => void;
   completeQuiz: (score: number) => void;
+
+  // Game goal
+  gameWon: boolean;
+  checkWinCondition: () => void;
+  resetGame: () => void;
 }
 
 export const useGameStore = create<GameState>()(
@@ -330,6 +335,27 @@ export const useGameStore = create<GameState>()(
     closeQuiz: () => set({ showQuizModal: false }),
     completeQuiz: (score) => set({ quizCompleted: true, quizScore: score, showQuizModal: false }),
 
+    // ── Game goal ─────────────────────────────────────
+    gameWon: false,
+    checkWinCondition: () => {
+      const { unlockedLocations, tutorialCompleted, quizCompleted, gameWon } = get();
+      if (gameWon) return;
+      // Win = all 3 locations unlocked + tutorial done + quiz done
+      if (unlockedLocations.length >= 3 && tutorialCompleted && quizCompleted) {
+        set({ gameWon: true });
+      }
+    },
+    resetGame: () => {
+      set({
+        isOnboarded: false, coins: 0, inventory: [], unlockedLocations: ['room'],
+        purchasedUpgrades: [], currentLocation: 'room', activeIncident: null,
+        lastEarnEvent: null, debt: 0, creditLimit: 5000, creditDueDate: 0,
+        lastIncidentId: null, lastIncidentTime: 0, lastRepairEvent: null,
+        tutorialActive: false, tutorialStep: 0, tutorialWorkCount: 0, tutorialCompleted: false,
+        quizCompleted: false, quizScore: 0, showQuizModal: false, gameWon: false,
+      });
+    },
+
     bankLogicTick: () => {
        const { debt, creditDueDate, inventory, coins } = get();
        const stateUpdates: Partial<GameState> = {};
@@ -356,6 +382,8 @@ export const useGameStore = create<GameState>()(
        if (Object.keys(stateUpdates).length > 0) {
           set(stateUpdates);
        }
+       // Check win condition
+       get().checkWinCondition();
     }
   })),
   {

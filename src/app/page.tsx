@@ -56,6 +56,7 @@ export default function GamePage() {
     buyItem, buyInsurance, workOnItem, repairItem, buyLocation, changeLocation, buyUpgrade,
     tutorialActive, tutorialStep, tutorialCompleted, startTutorial, advanceTutorial, skipTutorial,
     showQuizModal, quizCompleted, quizScore, openQuiz, closeQuiz, completeQuiz,
+    gameWon, resetGame,
   } = useGameStore();
 
   const [now, setNow] = useState(Date.now());
@@ -390,6 +391,29 @@ export default function GamePage() {
           )}
         </div>
       </div>
+
+      {/* ── Win Screen ── */}
+      {gameWon && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 70, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(8px)' }}>
+          <div style={{ textAlign: 'center', maxWidth: 360, padding: 32 }}>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>🏆</div>
+            <div style={{ fontSize: 24, fontWeight: 900, color: '#facc15', marginBottom: 8 }}>Поздравляем!</div>
+            <div style={{ fontSize: 15, color: '#e2e8f0', lineHeight: 1.7, marginBottom: 8 }}>
+              Ты прошёл обучение, сдал квиз и разблокировал все локации.
+            </div>
+            <div style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.7, marginBottom: 24 }}>
+              Теперь ты знаешь: страхование — это маленькая плата сейчас, чтобы не потерять много потом.
+              Риски есть везде, но ими можно управлять.
+            </div>
+            <div style={{ fontSize: 14, color: '#34d399', fontWeight: 700, marginBottom: 20 }}>
+              Квиз: {quizScore}/5 правильных ответов
+            </div>
+            <button onClick={resetGame} style={{ width: '100%', padding: '14px 0', borderRadius: 12, fontSize: 16, fontWeight: 900, background: 'linear-gradient(135deg,#7c3aed,#5b21b6)', color: 'white', border: 'none', cursor: 'pointer', boxShadow: '0 0 30px rgba(124,58,237,0.5)' }}>
+              Начать заново
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ── Quiz Modal ── */}
       {showQuizModal && (
