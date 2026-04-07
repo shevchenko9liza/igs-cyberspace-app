@@ -9,6 +9,7 @@ import { TUTORIAL_STEPS } from '@/constants/tutorialSteps';
 import { QUIZ_QUESTIONS } from '@/constants/quizData';
 import { Send, Gamepad2, MessageCircle, Shield, ShieldAlert, Wrench, Zap, Home, GraduationCap } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import ReactMarkdown from 'react-markdown';
 
 const PhaserGame = dynamic(() => import('@/components/PhaserGame'), { ssr: false });
 
@@ -165,36 +166,67 @@ export default function GamePage() {
                <DialogHeader>
                  <DialogTitle className="text-xl font-bold text-[#a78bfa]">Кибер-Банк</DialogTitle>
                </DialogHeader>
-               <div className="flex flex-col gap-4 mt-2">
-                 <div className="text-sm text-gray-300">
-                    <div>Свободный лимит: <strong className="text-green-400">{creditLimit - debt} 🪙</strong></div>
-                    <div>Текущий долг: <strong className="text-red-400">{debt} 🪙</strong></div>
-                    {debt > 0 && <div className="text-red-400 text-xs mt-1">Пеня (5%) через {Math.max(0, Math.floor((creditDueDate - now)/1000))} сек</div>}
-                 </div>
-                 <input 
-                   type="number" 
-                   value={creditInput} 
-                   onChange={(e) => setCreditInput(e.target.value)}
-                   className="bg-[#140d2e] border border-[#2d1b69] text-white p-2 text-sm rounded outline-none w-full"
-                   placeholder="Введите сумму..."
-                 />
-                 <div className="flex gap-2">
-                   <button 
-                     onClick={() => { takeCredit(Number(creditInput)); setCreditInput(''); }}
-                     disabled={!creditInput || Number(creditInput) <= 0}
-                     className="flex-1 bg-green-700 hover:bg-green-600 disabled:opacity-50 p-2 rounded font-bold text-sm text-white cursor-pointer"
-                   >
-                     Взять (+15% комиссия)
-                   </button>
-                   <button 
-                     onClick={() => { repayCredit(Number(creditInput) || debt); setCreditInput(''); }}
-                     disabled={debt <= 0}
-                     className="flex-1 bg-blue-700 hover:bg-blue-600 disabled:opacity-50 p-2 rounded font-bold text-sm text-white cursor-pointer"
-                   >
-                     Погасить
-                   </button>
-                 </div>
-               </div>
+               {(() => {
+                 const availableLimit = Math.max(0, creditLimit - debt);
+                 const inputNum = Number(creditInput) || 0;
+                 const debtWithCommission = Math.floor(inputNum * 1.15);
+                 const canTake = inputNum > 0 && debt + debtWithCommission <= creditLimit;
+                 const canRepay = debt > 0 && inputNum > 0 && coins >= inputNum;
+                 const penaltySeconds = debt > 0 ? Math.max(0, Math.floor((creditDueDate - Date.now()) / 1000)) : 0;
+                 return (
+                   <div className="flex flex-col gap-4 mt-2">
+                     <div className="text-sm text-gray-300">
+                        <div>Свободный лимит: <strong className={availableLimit > 0 ? "text-green-400" : "text-red-400"}>{availableLimit} 🪙</strong></div>
+                        <div>Текущий долг: <strong className="text-red-400">{debt} 🪙</strong></div>
+                        <div>На счету: <strong className="text-yellow-400">{coins} 🪙</strong></div>
+                        {debt > 0 && <div className="text-red-400 text-xs mt-1">Пеня (5%) через {penaltySeconds} сек</div>}
+                     </div>
+                     <input
+                       type="number"
+                       min="0"
+                       value={creditInput}
+                       onChange={(e) => setCreditInput(e.target.value)}
+                       className="bg-[#140d2e] border border-[#2d1b69] text-white p-2 text-sm rounded outline-none w-full"
+                       placeholder="Введите сумму..."
+                     />
+                     {/* Предупреждения */}
+                     {inputNum > 0 && !canTake && debt + debtWithCommission > creditLimit && (
+                       <div className="text-xs text-yellow-400 bg-yellow-400/10 p-2 rounded">
+                         Превышен лимит! С комиссией 15% долг составит {debt + debtWithCommission} из {creditLimit} доступных
+                       </div>
+                     )}
+                     {inputNum > 0 && inputNum > coins && debt > 0 && (
+                       <div className="text-xs text-yellow-400 bg-yellow-400/10 p-2 rounded">
+                         Недостаточно монет для погашения. На счету {coins}, нужно {inputNum}
+                       </div>
+                     )}
+                     <div className="flex gap-2">
+                       <button
+                         onClick={() => { takeCredit(inputNum); setCreditInput(''); }}
+                         disabled={!canTake}
+                         className="flex-1 bg-green-700 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed p-2 rounded font-bold text-sm text-white cursor-pointer"
+                       >
+                         Взять (+15%)
+                       </button>
+                       <button
+                         onClick={() => { repayCredit(inputNum || debt); setCreditInput(''); }}
+                         disabled={!canRepay && debt <= 0}
+                         className="flex-1 bg-blue-700 hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed p-2 rounded font-bold text-sm text-white cursor-pointer"
+                       >
+                         Погасить
+                       </button>
+                     </div>
+                     {debt > 0 && coins >= debt && (
+                       <button
+                         onClick={() => { repayCredit(debt); setCreditInput(''); }}
+                         className="bg-purple-700 hover:bg-purple-600 p-2 rounded font-bold text-xs text-white cursor-pointer"
+                       >
+                         Погасить весь долг ({debt} 🪙)
+                       </button>
+                     )}
+                   </div>
+                 );
+               })()}
              </DialogContent>
           </Dialog>
            {debt > 0 && (
@@ -252,7 +284,7 @@ export default function GamePage() {
                 const insured = invItem?.isInsured ?? false;
                 const canBuy = !owned && coins >= shopItem.cost;
                 const canInsure = owned && !insured && coins >= shopItem.insuranceCost;
-                const emojiMap: Record<string, string> = { smartphone: '📱', pc: '💻', tv: '📺', gpu: '🎬', car: '🛴' };
+                const emojiMap: Record<string, string> = { smartphone: '📱', pc: '💻', tv: '📺', gpu: '🎬', car: '🚗' };
 
                 return (
                   <div key={shopItem.id} style={S.card(broken)}>
@@ -378,7 +410,21 @@ export default function GamePage() {
                 )}
                 {messages.map((m) => (
                   <div key={m.id} style={{ display: 'flex', justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start' }}>
-                    {m.role !== 'data' && <div style={S.msg(m.role === 'user')}>{m.content || (m.toolInvocations?.length ? '🔍 Ищу информацию в интернете (Perplexity)...' : '')}</div>}
+                    {m.role !== 'data' && (
+                      <div style={S.msg(m.role === 'user')}>
+                        {m.role === 'user' ? (
+                          m.content
+                        ) : (
+                          m.content ? (
+                            <div className="prose prose-sm prose-invert max-w-none [&_p]:m-0 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0 [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm [&_h1]:font-bold [&_h2]:font-bold [&_h3]:font-bold [&_h1]:my-1 [&_h2]:my-1 [&_h3]:my-1 [&_strong]:text-purple-300 [&_table]:text-xs [&_th]:p-1 [&_td]:p-1">
+                              <ReactMarkdown>{m.content}</ReactMarkdown>
+                            </div>
+                          ) : (
+                            m.toolInvocations?.length ? '🔍 Ищу информацию...' : ''
+                          )
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
                 <div ref={chatEndRef} />
