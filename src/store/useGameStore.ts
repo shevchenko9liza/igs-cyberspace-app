@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { subscribeWithSelector, persist } from 'zustand/middleware';
 import { SHOP_ITEMS, INCIDENTS, LOCATIONS, LOCATION_UPGRADES } from '@/constants/gameData';
+import { TUTORIAL_STEPS } from '@/constants/tutorialSteps';
 
 export interface InventoryItem {
   id: string;
@@ -33,6 +34,17 @@ interface GameState {
   lastIncidentTime: number;
   lastRepairEvent: { itemId: string; ts: number } | null;
 
+  // Tutorial state
+  tutorialActive: boolean;
+  tutorialStep: number;
+  tutorialWorkCount: number;
+  tutorialCompleted: boolean;
+
+  // Quiz state
+  quizCompleted: boolean;
+  quizScore: number;
+  showQuizModal: boolean;
+
   completeOnboarding: () => void;
   incrementCoins: (amount: number) => void;
   buyLocation: (locId: string) => void;
@@ -45,6 +57,16 @@ interface GameState {
   takeCredit: (amount: number) => void;
   repayCredit: (amount: number) => void;
   bankLogicTick: () => void;
+
+  // Tutorial actions
+  startTutorial: () => void;
+  advanceTutorial: () => void;
+  skipTutorial: () => void;
+
+  // Quiz actions
+  openQuiz: () => void;
+  closeQuiz: () => void;
+  completeQuiz: (score: number) => void;
 }
 
 export const useGameStore = create<GameState>()(
@@ -64,6 +86,17 @@ export const useGameStore = create<GameState>()(
     lastIncidentId: null,
     lastIncidentTime: 0,
     lastRepairEvent: null,
+
+    // Tutorial
+    tutorialActive: false,
+    tutorialStep: 0,
+    tutorialWorkCount: 0,
+    tutorialCompleted: false,
+
+    // Quiz
+    quizCompleted: false,
+    quizScore: 0,
+    showQuizModal: false,
 
     completeOnboarding: () =>
       set({
@@ -126,7 +159,7 @@ export const useGameStore = create<GameState>()(
     buyInsurance: (itemId) => {
       const shopItem = SHOP_ITEMS.find((i) => i.id === itemId);
       if (!shopItem) return;
-      const { coins, inventory } = get();
+      const { coins, inventory, tutorialActive, tutorialStep } = get();
       if (coins < shopItem.insuranceCost) return;
       set({
         coins: coins - shopItem.insuranceCost,
@@ -134,38 +167,61 @@ export const useGameStore = create<GameState>()(
           i.id === itemId ? { ...i, isInsured: true } : i
         ),
       });
+      // Tutorial: advance if waiting for insurance purchase
+      if (tutorialActive && TUTORIAL_STEPS[tutorialStep]?.requiredAction === 'buy_insurance_smartphone' && itemId === 'smartphone') {
+        setTimeout(() => get().advanceTutorial(), 500);
+      }
     },
 
     workOnItem: (itemId) => {
-      const { inventory, currentLocation } = get();
+      const { inventory, currentLocation, tutorialActive, tutorialStep, tutorialWorkCount } = get();
       const invItem = inventory.find((i) => i.id === itemId);
       if (!invItem || invItem.isBroken) return;
 
       const shopItem = SHOP_ITEMS.find((i) => i.id === itemId);
-      if (!shopItem || shopItem.locationId !== currentLocation) return; // Can only work on items in current room
+      if (!shopItem || shopItem.locationId !== currentLocation) return;
 
-      const roll = Math.random();
+      // Tutorial: считаем клики работы
+      if (tutorialActive) {
+        const currentTutorialStep = TUTORIAL_STEPS[tutorialStep];
+        if (currentTutorialStep?.requiredAction === 'work_3_times') {
+          const newCount = tutorialWorkCount + 1;
+          set({ tutorialWorkCount: newCount });
+          if (newCount >= 3) {
+            // Автоматически переходим к следующему шагу
+            setTimeout(() => get().advanceTutorial(), 300);
+          }
+        }
+      }
+
+      // Tutorial: на шаге 'trigger_incident' форсируем инцидент
+      const isTutorialIncidentStep = tutorialActive && TUTORIAL_STEPS[tutorialStep]?.requiredAction === 'experience_incident';
+      const roll = isTutorialIncidentStep ? 1.0 : Math.random(); // Force incident during tutorial
+
       if (roll > shopItem.riskChance) {
         set((state) => ({
           coins: state.coins + shopItem.income,
           lastEarnEvent: { itemId, amount: shopItem.income, ts: Date.now() },
         }));
       } else {
-        if (Date.now() - get().lastIncidentTime < 60000) return;
+        // Tutorial: обходим cooldown
+        if (!isTutorialIncidentStep && Date.now() - get().lastIncidentTime < 60000) return;
 
-        const possibleIncidents = INCIDENTS.filter(i => 
-          ((i.requiredItemId === itemId) || (i.requiredLocationId === currentLocation)) && 
+        const possibleIncidents = INCIDENTS.filter(i =>
+          ((i.requiredItemId === itemId) || (i.requiredLocationId === currentLocation)) &&
           i.id !== get().lastIncidentId
         );
+        // During tutorial, prefer insurable incidents
         let incident = null;
-        if (possibleIncidents.length > 0) {
+        if (isTutorialIncidentStep) {
+          incident = possibleIncidents.find(i => i.insurable) || possibleIncidents[0];
+        } else if (possibleIncidents.length > 0) {
           incident = possibleIncidents[Math.floor(Math.random() * possibleIncidents.length)];
         } else {
           incident = INCIDENTS.find(i => i.requiredItemId === itemId);
         }
 
         set((state) => ({
-          // Сломанная вещь — удаляем из инвентаря, можно купить заново
           inventory: state.inventory.filter((i) => i.id !== itemId),
           activeIncident: incident ? { ...incident, brokenItemId: itemId } : null,
           lastIncidentId: incident ? incident.id : state.lastIncidentId,
@@ -215,6 +271,11 @@ export const useGameStore = create<GameState>()(
         activeIncident: null,
         lastRepairEvent: method === 'insurance' ? { itemId, ts: Date.now() } : null
       }));
+      // Tutorial: advance after resolving incident
+      const { tutorialActive, tutorialStep: tStep } = get();
+      if (tutorialActive && TUTORIAL_STEPS[tStep]?.requiredAction === 'resolve_incident') {
+        setTimeout(() => get().advanceTutorial(), 800);
+      }
     },
 
     takeCredit: (amount) => {
@@ -239,6 +300,26 @@ export const useGameStore = create<GameState>()(
        });
     },
     
+    // ── Tutorial actions ─────────────────────────────
+    startTutorial: () => set({ tutorialActive: true, tutorialStep: 0, tutorialWorkCount: 0 }),
+
+    advanceTutorial: () => {
+      const { tutorialStep } = get();
+      const nextStep = tutorialStep + 1;
+      if (nextStep >= TUTORIAL_STEPS.length) {
+        set({ tutorialActive: false, tutorialCompleted: true, tutorialStep: 0 });
+      } else {
+        set({ tutorialStep: nextStep, tutorialWorkCount: 0 });
+      }
+    },
+
+    skipTutorial: () => set({ tutorialActive: false, tutorialStep: 0 }),
+
+    // ── Quiz actions ──────────────────────────────────
+    openQuiz: () => set({ showQuizModal: true }),
+    closeQuiz: () => set({ showQuizModal: false }),
+    completeQuiz: (score) => set({ quizCompleted: true, quizScore: score, showQuizModal: false }),
+
     bankLogicTick: () => {
        const { debt, creditDueDate, inventory, coins } = get();
        const stateUpdates: Partial<GameState> = {};
