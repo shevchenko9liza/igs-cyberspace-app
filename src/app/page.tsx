@@ -31,7 +31,7 @@ const S = {
     border: `1px solid ${broken ? '#ef4444' : '#2d1b69'}`, transition: 'border .3s',
   }),
   btn: (color: string, disabled = false) => ({
-    padding: '7px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700,
+    padding: '9px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, minHeight: 36,
     background: disabled ? '#374151' : color, color: 'white', border: 'none',
     cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.6 : 1,
     display: 'flex', alignItems: 'center', gap: 4, boxShadow: disabled ? 'none' : `0 0 10px ${color}66`,
@@ -251,7 +251,7 @@ export default function GamePage() {
                 const insured = invItem?.isInsured ?? false;
                 const canBuy = !owned && coins >= shopItem.cost;
                 const canInsure = owned && !insured && coins >= shopItem.insuranceCost;
-                const emojiMap: Record<string, string> = { smartphone: '📱', pc: '💻', tv: '📺', gpu: '⛏️', car: '🏎️' };
+                const emojiMap: Record<string, string> = { smartphone: '📱', pc: '💻', tv: '📺', gpu: '🎬', car: '🛴' };
 
                 return (
                   <div key={shopItem.id} style={S.card(broken)}>

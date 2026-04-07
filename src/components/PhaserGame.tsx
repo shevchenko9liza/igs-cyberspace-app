@@ -41,7 +41,7 @@ export default function PhaserGame() {
   }, []);
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '60vh', overflow: 'hidden', background: '#0a0a12' }}>
+    <div style={{ position: 'relative', width: '100%', height: 'clamp(220px, 45vh, 360px)', overflow: 'hidden', background: '#0a0a12' }}>
       <div ref={gameRef} style={{ width: '100%', height: '100%' }} />
       <div style={{
         position: 'absolute', top: 12, left: 12, zIndex: 10,
